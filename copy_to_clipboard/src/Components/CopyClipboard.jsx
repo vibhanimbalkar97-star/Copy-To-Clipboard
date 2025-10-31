@@ -2,24 +2,28 @@ import React, { useState } from 'react'
 import './CopyClipboard.css'
 
 const CopyClipboard = () => {
-    const [input, setInput] = useState("");
-    const [message, setMessage] = useState("");
+  const [input, setInput] = useState("");
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
 
-    const handleChange = (e) => {
-        setInput(e.target.value)
-    }
+  const handleChange = (e) => {
+    setInput(e.target.value)
+  }
 
-    const handleCopy = async (value) => {
-    if(!value.trim()) {
-        setMessage("Input cannot be empty");
-        setTimeout(() => setMessage(""), 2000);
-        return;
+  const handleCopy = async (value) => {
+    if (!value.trim()) {
+      setIsError(true);
+      setMessage("Input cannot be empty");
+      setTimeout(() => setMessage(""), 2000);
+      return;
     }
- try {
+    try {
       await navigator.clipboard.writeText(value);
-      setMessage("✅ Copied successfully!");
+      setIsError(false);
+      setMessage("Copied!");
       setTimeout(() => setMessage(""), 2000);
     } catch (err) {
+      setIsError(true);
       setMessage("❌ Failed to copy!");
       setTimeout(() => setMessage(""), 2000);
     }
@@ -27,44 +31,44 @@ const CopyClipboard = () => {
 
   return (
     <div className="copyToClipboard">
-        <h1>Copy To Clipboard</h1>
-        <p>Click the button to copy the text</p>
-        <div className="copyToClipboard-container">
-            <div>
-                <label htmlFor='text'>
-                    Enter Your text:
-                    <input 
-                    type='text'
-                    placeholder='Type Something'
-                    id='text'
-                    data-testid="input-field"
-                    onChange={handleChange}
-                    value={input}
-                    />
-                </label>
-                <button
-                className="btn"
-                data-testid="copy-button"
-                onClick={() => handleCopy(input)}>
-                    Copy
-                    </button>
-                   {/* Message display */}
+      <h1>Copy To Clipboard</h1>
+      <p>Click the button to copy the text</p>
+      <div className="copyToClipboard-container">
+        <div>
+          <label htmlFor='text'>
+            Enter Your text:
+            <input
+              type='text'
+              placeholder='Type Something'
+              id='text'
+              data-testid="input-field"
+              onChange={handleChange}
+              value={input}
+            />
+          </label>
+          <button
+            className="btn"
+            data-testid="copy-button"
+            onClick={() => handleCopy(input)}>
+            Copy
+          </button>
+          {/* ✅ Conditionally render success/error message */}
           {message && (
             <p
+              data-testid={isError ? "error-message" : "copied-message"}
               style={{
                 marginTop: "10px",
-                color: message.includes("❌") ? "red" : "green",
-                fontWeight: "bold"
+                fontWeight: "bold",
+                color: isError ? "red" : "green",
               }}
             >
-              {message}
+              {isError ? "❌" : "✅"} {message}
             </p>
           )}
-            </div>
-        </div>
-        <div>
-            
-        </div>
+       </div>
+      </div>
+      <div>
+      </div>
     </div>
   )
 }
